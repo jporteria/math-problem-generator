@@ -28,6 +28,23 @@ export default function Home() {
   // Session and result tracking
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  
+  // Score tracking state
+  const [score, setScore] = useState(0);
+  const [totalProblems, setTotalProblems] = useState(0);
+  
+  // Problem type selection state
+  const [problemType, setProblemType] = useState("mixed");
+
+  /**
+   * Resets the score tracking to start over
+   */
+  const resetScore = () => {
+    setScore(0);
+    setTotalProblems(0);
+    setFeedback("");
+    setIsCorrect(null);
+  };
 
   /**
    * Generates a new math problem by calling the API
@@ -39,10 +56,11 @@ export default function Home() {
     setIsCorrect(null);
 
     try {
-      // Call the API to generate a new problem
+      // Call the API to generate a new problem with selected type
       const res = await fetch("/api/math-problem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problemType }),
       });
 
       if (!res.ok) {
@@ -101,6 +119,12 @@ export default function Home() {
       // Update UI with feedback and result
       setFeedback(data.feedback || "No feedback");
       setIsCorrect(Boolean(data.isCorrect));
+      
+      // Update score tracking
+      setTotalProblems(prev => prev + 1);
+      if (Boolean(data.isCorrect)) {
+        setScore(prev => prev + 1);
+      }
     } catch (err: any) {
       console.error("Error submitting answer:", err);
       setFeedback("Error submitting answer. Please try again.");
@@ -122,8 +146,90 @@ export default function Home() {
           </p>
         </header>
 
+        {/* Score Tracking Section */}
+        {totalProblems > 0 && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg p-6 mb-6 border border-blue-100">
+            <div className="flex items-center justify-center space-x-8">
+              {/* Score Display */}
+              <div className="text-center">
+                <div className="text-3xl font-bold text-indigo-600">
+                  {score}
+                </div>
+                <div className="text-sm font-medium text-gray-600">
+                  Correct
+                </div>
+              </div>
+              
+              {/* Divider */}
+              <div className="text-2xl font-light text-gray-300">/</div>
+              
+              {/* Total Display */}
+              <div className="text-center">
+                <div className="text-3xl font-bold text-gray-700">
+                  {totalProblems}
+                </div>
+                <div className="text-sm font-medium text-gray-600">
+                  Total
+                </div>
+              </div>
+              
+              {/* Percentage Display */}
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600">
+                  {Math.round((score / totalProblems) * 100)}%
+                </div>
+                <div className="text-sm font-medium text-gray-600">
+                  Accuracy
+                </div>
+              </div>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="mt-4">
+              <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
+                <span>Progress</span>
+                <div className="flex items-center space-x-2">
+                  <span>{score} of {totalProblems} correct</span>
+                  <button
+                    onClick={resetScore}
+                    className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+                    title="Reset Score"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500 ease-in-out"
+                  style={{ width: `${(score / totalProblems) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Problem Generation Section */}
         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 mb-6 transition-all">
+          {/* Problem Type Selector */}
+          <div className="mb-6">
+            <label htmlFor="problemType" className="block text-sm font-medium text-gray-700 mb-2">
+              Problem Type
+            </label>
+            <select
+              id="problemType"
+              value={problemType}
+              onChange={(e) => setProblemType(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+            >
+              <option value="mixed">Mixed (All Operations)</option>
+              <option value="addition">Addition</option>
+              <option value="subtraction">Subtraction</option>
+              <option value="multiplication">Multiplication</option>
+              <option value="division">Division</option>
+            </select>
+          </div>
+          
           <button
             onClick={generateProblem}
             disabled={isGenerating}

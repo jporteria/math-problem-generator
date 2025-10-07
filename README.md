@@ -45,14 +45,15 @@ Throughout this project, I encountered several technical challenges that provide
   - `POST /api/math-problem` - Generates new problems using AI and saves to database
   - `POST /api/math-problem/submit` - Evaluates answers and generates personalized feedback
 - **Code Quality**: Added comprehensive comments, proper TypeScript interfaces, separated loading states, and clean code organization
-- **UI/UX**: Responsive design with loading spinners, visual feedback for correct/incorrect answers, proper form validation, and smooth transitions
+- **UI/UX**: Responsive design with loading spinners, visual feedback for correct/incorrect answers, proper form validation, smooth transitions, and real-time score tracking
+- **Problem Types**: Implemented dynamic problem type selection (Addition, Subtraction, Multiplication, Division, Mixed) with AI prompt customization for each type, allowing users to focus on specific math operations or practice all types randomly
 
 ## Additional Features
 
 - [ ] Difficulty levels (Easy/Medium/Hard)
 - [ ] Problem history view
-- [ ] Score tracking
-- [ ] Different problem types (addition, subtraction, multiplication, division)
+- [x] Score tracking
+- [x] Different problem types (addition, subtraction, multiplication, division)
 - [ ] Hints system
 - [ ] Step-by-step solution explanations
 

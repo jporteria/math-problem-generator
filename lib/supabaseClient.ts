@@ -1,12 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
+// Load Supabase configuration from environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+// Validate that required environment variables are present
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
+// Create and export the Supabase client instance
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export type Database = {

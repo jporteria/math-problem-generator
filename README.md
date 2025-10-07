@@ -57,4 +57,3 @@ Throughout this project, I encountered several technical challenges that provide
 - [ ] Hints system
 - [ ] Step-by-step solution explanations
 
-```

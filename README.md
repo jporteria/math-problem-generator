@@ -8,6 +8,12 @@ A fully functional AI-powered math problem generator application that creates wo
 
 🌐 **[Click here to view live demo](https://math-problem-generator-beta.vercel.app/)** 
 
+## 🎬 **App Preview**
+
+![Math Problem Generator Demo](MathProblemGenerator.gif)
+
+*Complete user flow: Dashboard → Problem Generation → Timer Challenge → Hints → Solutions → Confetti Celebration* 
+
 ## Tech Stack
 
 - **Frontend**: Next.js 14 (App Router) with TypeScript

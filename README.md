@@ -4,17 +4,16 @@
 
 A fully functional AI-powered math problem generator application that creates word problems suitable for Primary 5 students, saves problems and user submissions to a database, and provides personalized feedback using Google's Gemini AI.
 
-## Live Demo
+## 🌐 Live Demo
 
-🌐 **[Click here to view live demo](https://math-problem-generator-beta.vercel.app/)** 
+ **[Click here to view live demo](https://math-problem-generator-beta.vercel.app/)** 
 
-## 🎬 **App Preview**
+## 🎬 App Preview
 
 ![Math Problem Generator Demo](MathProblemGenerator.gif)
+ 
 
-*Complete user flow: Dashboard → Problem Generation → Timer Challenge → Hints → Solutions → Confetti Celebration* 
-
-## Tech Stack
+## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 14 (App Router) with TypeScript
 - **Styling**: Tailwind CSS
@@ -22,7 +21,7 @@ A fully functional AI-powered math problem generator application that creates wo
 - **AI Integration**: Google Generative AI (Gemini 2.5 Flash)
 - **Deployment**: Vercel
 
-## Architecture & Performance
+## ⚡ Architecture & Performance
 
 - **Server-Side Rendering**: Optimized with Next.js App Router for fast initial page loads
 - **Database Design**: Normalized schema with efficient indexing for scalable performance  
@@ -30,13 +29,13 @@ A fully functional AI-powered math problem generator application that creates wo
 - **Error Resilience**: Graceful fallbacks ensure application works even when AI services are unavailable
 - **TypeScript**: Full type safety across frontend and API routes for robust development
 
-## Supabase Credentials
+## 🔑 Supabase Credentials
    ```
    SUPABASE_URL: https://aomfokcumnzpdqlcbrfr.supabase.co
    SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvbWZva2N1bW56cGRxbGNicmZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTIwNDEsImV4cCI6MjA3NTM4ODA0MX0.4PMJMxnTaRVoAsgzolXUWB_ZuCAU2vwcFKEYMUWvsBc
    ```
 
-## Requirements Checklist
+## 📋 Requirements Checklist
 
 - [x] AI generates appropriate Primary 5 level math problems
 - [x] Problems and answers are saved to Supabase
@@ -46,7 +45,7 @@ A fully functional AI-powered math problem generator application that creates wo
 - [x] Error handling for API failures
 - [x] Loading states during API calls
 
-## Additional Features
+## ✨ Additional Features
 
 - [x] Difficulty levels (Beginner/Intermediate/Advanced/Expert)
 - [x] Problem history view
@@ -59,11 +58,11 @@ A fully functional AI-powered math problem generator application that creates wo
 - [x] Confetti celebration effects when answering correctly to enhance user experience
 - [x] High score leaderboard
 
-## Implementation Notes
+## 💭 Implementation Notes
 
 I'm particularly proud of the dashboard/landing page that was created, as it made the app look modern and user-friendly with its time-based greetings, feature highlights, and elegant top 3 leaderboard display with medal rankings. The main challenge was learning Supabase database schema updates and SQL migrations to add new features like scoring and hints, which provided valuable experience in database design patterns.
 
-### My Implementation:
+### 🔧 My Implementation:
 
 - **Frontend**: Next.js 14 with TypeScript, proper state management, loading states, error handling, and responsive Tailwind CSS design
 - **AI Integration**: Google Gemini 2.5 Flash for problem generation, personalized feedback, step-by-step solutions, and pre-generated hints with fallback mechanisms
@@ -78,7 +77,7 @@ I'm particularly proud of the dashboard/landing page that was created, as it mad
 - **Learning Features**: Difficulty levels, timer system, problem type selection, instant hints, solutions with access control, and confetti celebrations
 - **Mobile Optimization**: Fully responsive design with optimized navigation and UI components for all screen sizes
 
-## Future Enhancements
+## 🚀 Future Enhancements
 
 - **User Authentication**: Individual user accounts with personalized progress tracking and learning analytics
 - **Advanced AI Features**: Multi-step problem explanations with visual aids and adaptive difficulty adjustment

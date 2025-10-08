@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS math_problem_sessions (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     problem_text TEXT NOT NULL,
-    correct_answer NUMERIC NOT NULL
+    correct_answer NUMERIC NOT NULL,
+    difficulty_level TEXT DEFAULT 'Beginner' CHECK (difficulty_level IN ('Beginner', 'Intermediate', 'Advanced', 'Expert'))
 );
 
 -- Create math_problem_submissions table
@@ -13,8 +14,52 @@ CREATE TABLE IF NOT EXISTS math_problem_submissions (
     user_answer NUMERIC NOT NULL,
     is_correct BOOLEAN NOT NULL,
     feedback_text TEXT NOT NULL,
+    difficulty_level TEXT DEFAULT 'Beginner' CHECK (difficulty_level IN ('Beginner', 'Intermediate', 'Advanced', 'Expert')),
+    time_used_seconds INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Add columns to existing tables (if they don't exist)
+-- These commands will run safely even if columns already exist
+DO $$ 
+BEGIN
+    -- Add difficulty_level to sessions table if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'math_problem_sessions' 
+                   AND column_name = 'difficulty_level') THEN
+        ALTER TABLE math_problem_sessions 
+        ADD COLUMN difficulty_level TEXT DEFAULT 'Beginner' 
+        CHECK (difficulty_level IN ('Beginner', 'Intermediate', 'Advanced', 'Expert'));
+    END IF;
+    
+    -- Add difficulty_level to submissions table if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'math_problem_submissions' 
+                   AND column_name = 'difficulty_level') THEN
+        ALTER TABLE math_problem_submissions 
+        ADD COLUMN difficulty_level TEXT DEFAULT 'Beginner' 
+        CHECK (difficulty_level IN ('Beginner', 'Intermediate', 'Advanced', 'Expert'));
+    END IF;
+    
+    -- Add time_used_seconds to submissions table if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'math_problem_submissions' 
+                   AND column_name = 'time_used_seconds') THEN
+        ALTER TABLE math_problem_submissions 
+        ADD COLUMN time_used_seconds INTEGER DEFAULT 0;
+    END IF;
+    
+    -- Add hint column to sessions table if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'math_problem_sessions' 
+                   AND column_name = 'hint') THEN
+        ALTER TABLE math_problem_sessions 
+        ADD COLUMN hint TEXT;
+        
+        -- Add a comment to document the column
+        COMMENT ON COLUMN math_problem_sessions.hint IS 'Pre-generated hint for the math problem to help students understand the solution approach';
+    END IF;
+END $$;
 
 -- Enable Row Level Security
 ALTER TABLE math_problem_sessions ENABLE ROW LEVEL SECURITY;

@@ -5,9 +5,10 @@ import { supabase } from '../../../lib/supabaseClient'
  * Generates a math problem using Google's Generative AI (Gemini)
  * Falls back to simple math problems if API is unavailable
  * @param {string} problemType - The type of math problem to generate (addition, subtraction, multiplication, division, mixed)
+ * @param {string} difficulty - The difficulty level (Beginner, Intermediate, Advanced, Expert)
  * @returns {Promise<{problem_text: string, final_answer: number}>}
  */
-async function callAIForProblem(problemType: string = 'mixed') {
+async function callAIForProblem(problemType: string = 'mixed', difficulty: string = 'Beginner') {
   const googleKey = process.env.GOOGLE_API_KEY;
   
   if (googleKey) {
@@ -32,9 +33,35 @@ async function callAIForProblem(problemType: string = 'mixed') {
           operationType = ' The problem can involve any mix of addition, subtraction, multiplication, or division operations.';
           break;
       }
+
+      // Create difficulty-specific constraints
+      let difficultyConstraints = '';
+      let complexityLevel = '';
+      switch (difficulty) {
+        case 'Beginner':
+          difficultyConstraints = ' Use numbers up to 50. Keep operations simple with 1-2 steps.';
+          complexityLevel = 'very simple';
+          break;
+        case 'Intermediate':
+          difficultyConstraints = ' Use numbers up to 100. Include 2-3 step problems with multiple operations.';
+          complexityLevel = 'moderately challenging';
+          break;
+        case 'Advanced':
+          difficultyConstraints = ' Use numbers up to 500. Include 3-4 step problems with multiple operations and fractions or decimals.';
+          complexityLevel = 'challenging';
+          break;
+        case 'Expert':
+          difficultyConstraints = ' Use larger numbers up to 1000. Include complex multi-step problems with fractions, decimals, and percentages.';
+          complexityLevel = 'very challenging';
+          break;
+        default:
+          difficultyConstraints = ' Use numbers up to 50. Keep operations simple.';
+          complexityLevel = 'simple';
+          break;
+      }
       
-      // Create a structured prompt for consistent JSON output
-      const prompt = `You are an assistant that ONLY returns JSON.\\nReturn a single Primary 5 level math word problem as a JSON object with exactly two fields: \\n- \\"problem_text\\": a short word problem appropriate for Primary 5 (age 10-11). Do NOT include the answer in the text.${operationType}\\n- \\"final_answer\\": the final numerical answer (an integer).\\n\\nReturn only the JSON and nothing else. Example: {"problem_text": "A bakery sold 45 cupcakes...", "final_answer": 15}`;
+      // Create a structured prompt for consistent JSON output with difficulty and hint
+      const prompt = `You are an assistant that ONLY returns JSON.\\nReturn a single ${complexityLevel} Primary 5 level math word problem as a JSON object with exactly three fields: \\n- \\"problem_text\\": a short word problem appropriate for Primary 5 (age 10-11). Do NOT include the answer in the text.${operationType}${difficultyConstraints}\\n- \\"final_answer\\": the final numerical answer (an integer or decimal).\\n- \\"hint\\": a single helpful hint that guides the student toward the solution without giving away the answer. The hint should explain what mathematical concept or operation to consider.\\n\\nReturn only the JSON and nothing else. Example: {"problem_text": "A bakery sold 45 cupcakes...", "final_answer": 15, "hint": "Think about what operation you need to find the total when you're combining groups of items."}`;
 
       const model = 'gemini-2.5-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${googleKey}`;
@@ -77,7 +104,7 @@ async function callAIForProblem(problemType: string = 'mixed') {
           try {
             const parsed = JSON.parse(match[0])
             // Validate the response structure
-            if (parsed && typeof parsed.problem_text === 'string' && (typeof parsed.final_answer === 'number' || typeof parsed.final_answer === 'string')) {
+            if (parsed && typeof parsed.problem_text === 'string' && (typeof parsed.final_answer === 'number' || typeof parsed.final_answer === 'string') && typeof parsed.hint === 'string') {
               // Ensure numeric final_answer
               parsed.final_answer = Number(parsed.final_answer)
               return parsed
@@ -92,30 +119,50 @@ async function callAIForProblem(problemType: string = 'mixed') {
     }
   }
 
-  // Fallback: Generate simple problems based on type when AI is unavailable
-  const generateFallbackProblem = (type: string) => {
-    const a = Math.floor(Math.random() * 50) + 1;
-    const b = Math.floor(Math.random() * 20) + 1;
+  // Fallback: Generate simple problems based on type and difficulty when AI is unavailable
+  const generateFallbackProblem = (type: string, difficulty: string) => {
+    // Adjust number ranges based on difficulty
+    let maxA = 50, maxB = 20, maxMultiplier = 12;
+    switch (difficulty) {
+      case 'Beginner':
+        maxA = 50; maxB = 20; maxMultiplier = 10;
+        break;
+      case 'Intermediate':
+        maxA = 100; maxB = 50; maxMultiplier = 15;
+        break;
+      case 'Advanced':
+        maxA = 300; maxB = 100; maxMultiplier = 20;
+        break;
+      case 'Expert':
+        maxA = 500; maxB = 200; maxMultiplier = 25;
+        break;
+    }
+    
+    const a = Math.floor(Math.random() * maxA) + 1;
+    const b = Math.floor(Math.random() * maxB) + 1;
     
     switch (type) {
       case 'addition':
         return {
           problem_text: `Sarah has ${a} stickers. Her friend gives her ${b} more stickers. How many stickers does Sarah have in total?`,
-          final_answer: a + b
+          final_answer: a + b,
+          hint: "When you're combining two groups of items, think about which operation helps you find the total."
         };
       case 'subtraction':
         const larger = Math.max(a, b);
         const smaller = Math.min(a, b);
         return {
           problem_text: `A shop had ${larger} books. They sold ${smaller} books today. How many books are left?`,
-          final_answer: larger - smaller
+          final_answer: larger - smaller,
+          hint: "When items are taken away or removed, think about which operation helps you find what remains."
         };
       case 'multiplication':
         const small_a = Math.floor(Math.random() * 12) + 2;
         const small_b = Math.floor(Math.random() * 10) + 2;
         return {
           problem_text: `There are ${small_a} boxes of pencils. Each box contains ${small_b} pencils. How many pencils are there in total?`,
-          final_answer: small_a * small_b
+          final_answer: small_a * small_b,
+          hint: "When you have equal groups of items, think about which operation helps you find the total quickly."
         };
       case 'division':
         const dividend = Math.floor(Math.random() * 50) + 10;
@@ -124,17 +171,19 @@ async function callAIForProblem(problemType: string = 'mixed') {
         const actualDividend = quotient * divisor;
         return {
           problem_text: `A teacher has ${actualDividend} stickers. She gives ${divisor} stickers to each student. How many students can she give stickers to?`,
-          final_answer: quotient
+          final_answer: quotient,
+          hint: "When you're sharing items equally among groups, think about which operation helps you find how many groups you can make."
         };
       default: // mixed
         return {
           problem_text: `A teacher has ${a} stickers. She gives ${b} stickers to each of her students. How many students can she give stickers to if she distributes them equally?`,
-          final_answer: Math.floor(a / b)
+          final_answer: Math.floor(a / b),
+          hint: "Think about what operation you use when dividing items equally among groups."
         };
     }
   };
   
-  return generateFallbackProblem(problemType);
+  return generateFallbackProblem(problemType, difficulty);
 }
 
 /**
@@ -143,18 +192,24 @@ async function callAIForProblem(problemType: string = 'mixed') {
  */
 export async function POST(request: Request) {
   try {
-    // Extract problem type from request body
+    // Extract problem type and difficulty from request body
     const body = await request.json().catch(() => ({}));
     const problemType = body.problemType || 'mixed';
+    const difficulty = body.difficulty || 'Beginner';
     
     // Generate a new problem using AI or fallback
-    const problem = await callAIForProblem(problemType)
-    const { problem_text, final_answer } = problem
+    const problem = await callAIForProblem(problemType, difficulty)
+    const { problem_text, final_answer, hint } = problem
 
-    // Save the problem session to database
+    // Save the problem session to database with difficulty and hint
     const { data, error } = await supabase
       .from('math_problem_sessions')
-      .insert([{ problem_text, correct_answer: Number(final_answer) }])
+      .insert([{ 
+        problem_text, 
+        correct_answer: Number(final_answer),
+        difficulty_level: difficulty,
+        hint: hint
+      }])
       .select()
       .single()
 
@@ -165,7 +220,7 @@ export async function POST(request: Request) {
 
     // Return the problem and session ID to the client
     return NextResponse.json({ 
-      problem: { problem_text, final_answer: Number(final_answer) }, 
+      problem: { problem_text, final_answer: Number(final_answer), hint }, 
       sessionId: data.id 
     })
   } catch (err) {

@@ -61,7 +61,7 @@ async function callAIForFeedback({ problem_text, correctAnswer, userAnswer, isCo
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { sessionId, userAnswer } = body
+    const { sessionId, userAnswer, difficulty, timeUsed, currentTotalScore } = body
 
     // Validate required parameters
     if (!sessionId || typeof userAnswer !== 'number') {
@@ -84,6 +84,16 @@ export async function POST(request: Request) {
     const correctAnswer = Number(session.correct_answer)
     const isCorrect = Number(userAnswer) === correctAnswer
 
+    // Calculate the total score for this submission
+    const difficultyMultipliers = {
+      Beginner: 1,
+      Intermediate: 1.5,
+      Advanced: 2,
+      Expert: 2.5
+    };
+    const multiplier = difficultyMultipliers[difficulty as keyof typeof difficultyMultipliers] || 1;
+    const newTotalScore = (currentTotalScore || 0) + (isCorrect ? multiplier : 0);
+
     // Generate personalized feedback using AI
     const feedback = await callAIForFeedback({ 
       problem_text: session.problem_text, 
@@ -92,14 +102,17 @@ export async function POST(request: Request) {
       isCorrect 
     })
 
-    // Save the submission to database for tracking
+    // Save the submission to database for tracking with difficulty, time, and total score
     const { data: submission, error: insertError } = await supabase
       .from('math_problem_submissions')
       .insert([{ 
         session_id: sessionId, 
         user_answer: userAnswer, 
         is_correct: isCorrect, 
-        feedback_text: feedback 
+        feedback_text: feedback,
+        difficulty_level: difficulty || 'Beginner',
+        time_used_seconds: timeUsed || 0,
+        total_score: newTotalScore
       }])
       .select()
       .single()

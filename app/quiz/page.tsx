@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import confetti from "canvas-confetti";
 
 /**
@@ -14,11 +15,24 @@ interface MathProblem {
 }
 
 /**
+ * Interface for user data
+ */
+interface User {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+/**
  * Quiz component for the Math Problem Generator application
  * Handles problem generation, answer submission, and feedback display
  */
 
 export default function QuizPage() {
+  // User authentication
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+  
   // Core application state
   const [problem, setProblem] = useState<MathProblem | null>(null);
   const [userAnswer, setUserAnswer] = useState("");
@@ -146,6 +160,7 @@ export default function QuizPage() {
           difficulty,
           timeUsed: timeLeft !== null ? difficultyConfig[difficulty as keyof typeof difficultyConfig].timeLimit - timeLeft : 0,
           currentTotalScore: totalScore, // Send current total score
+          userId: user?.id, // Include user ID for leaderboard tracking
         }),
       });
 
@@ -178,6 +193,25 @@ export default function QuizPage() {
       setIsSubmitting(false);
     }
   };
+
+  /**
+   * Check for user authentication
+   */
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+      } catch (err) {
+        console.error('Error parsing user data:', err);
+        localStorage.removeItem('user');
+        router.push('/login');
+      }
+    } else {
+      router.push('/login');
+    }
+  }, [router]);
 
   /**
    * Timer effect to handle countdown

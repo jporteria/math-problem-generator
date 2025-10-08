@@ -2,29 +2,53 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface HighScore {
   score: number;
   difficulty: string;
   date: string;
+  name?: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  created_at: string;
 }
 
 export default function HomePage() {
   const [highScores, setHighScores] = useState<HighScore[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [greeting, setGreeting] = useState('');
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
 
-  // Set time-based greeting
+  // Check for user authentication
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      setGreeting('Good Morning! 🌅');
-    } else if (hour < 17) {
-      setGreeting('Good Afternoon! ☀️');
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+      } catch (err) {
+        console.error('Error parsing user data:', err);
+        localStorage.removeItem('user');
+        router.push('/login');
+      }
     } else {
-      setGreeting('Good Evening! 🌙');
+      router.push('/login');
     }
-  }, []);
+  }, [router]);
+
+  // Set personalized greeting
+  useEffect(() => {
+    if (user) {
+      const hour = new Date().getHours();
+      const timeGreeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+      setGreeting(`${timeGreeting}, ${user.name}! 👋`);
+    }
+  }, [user]);
 
   // Fetch high scores
   useEffect(() => {
@@ -108,9 +132,24 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="text-center mb-12">
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-              {greeting}
-            </h2>
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+                  {greeting}
+                </h2>
+              </div>
+              {user && (
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('user');
+                    router.push('/login');
+                  }}
+                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                >
+                  Switch User
+                </button>
+              )}
+            </div>
             <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
               Welcome to the ultimate AI-powered math practice platform!
               Challenge yourself with dynamic problems designed for Primary 5 students,
@@ -200,7 +239,8 @@ export default function HomePage() {
                           {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
                         </span>
                         <div>
-                          <div className="font-semibold text-gray-800">{score.score} pts</div>
+                          <div className="font-semibold text-gray-800">{score.name || 'Anonymous'}</div>
+                          <div className="font-semibold text-indigo-600">{score.score} pts</div>
                           <div className="text-xs text-gray-600">{score.difficulty}</div>
                         </div>
                       </div>

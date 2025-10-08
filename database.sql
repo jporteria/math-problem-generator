@@ -1,3 +1,10 @@
+-- Create users table for simple name-based authentication
+CREATE TABLE IF NOT EXISTS users (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create math_problem_sessions table
 CREATE TABLE IF NOT EXISTS math_problem_sessions (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -11,6 +18,7 @@ CREATE TABLE IF NOT EXISTS math_problem_sessions (
 CREATE TABLE IF NOT EXISTS math_problem_submissions (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     session_id UUID NOT NULL REFERENCES math_problem_sessions(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     user_answer NUMERIC NOT NULL,
     is_correct BOOLEAN NOT NULL,
     feedback_text TEXT NOT NULL,
@@ -55,6 +63,14 @@ BEGIN
                    AND column_name = 'total_score') THEN
         ALTER TABLE math_problem_submissions 
         ADD COLUMN total_score NUMERIC DEFAULT 0;
+    END IF;
+    
+    -- Add user_id to submissions table if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'math_problem_submissions' 
+                   AND column_name = 'user_id') THEN
+        ALTER TABLE math_problem_submissions 
+        ADD COLUMN user_id UUID REFERENCES users(id) ON DELETE SET NULL;
     END IF;
     
     -- Add hint column to sessions table if it doesn't exist

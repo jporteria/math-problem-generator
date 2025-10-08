@@ -54,9 +54,10 @@ A fully functional AI-powered math problem generator application that creates wo
 - [x] Hints system
 - [x] Step-by-step solution/explanations
 - [x] Timer system with difficulty-based time limits
-- [x] Dashboard/Landing page with platform overview
+- [x] Dashboard/Landing page with platform overview and personalized greetings
 - [x] Confetti celebration effects when answering correctly to enhance user experience
 - [x] High score leaderboard
+- [x] Simple login system with name-based authentication
 
 ## 💭 Implementation Notes
 
@@ -67,21 +68,23 @@ I'm particularly proud of the dashboard/landing page that was created, as it mad
 - **Frontend**: Next.js 14 with TypeScript, proper state management, loading states, error handling, and responsive Tailwind CSS design
 - **AI Integration**: Google Gemini 2.5 Flash for problem generation, personalized feedback, step-by-step solutions, and pre-generated hints with fallback mechanisms
 - **Database**: Supabase integration with optimized schema, problem sessions, user submissions, scoring system, and leaderboard tracking
+- **User Authentication**: Simple login system with name-based authentication and personalized user experience
 - **API Routes**: 
+  - `POST /api/auth/login` - User login/registration with name
   - `POST /api/math-problem` - Generate problems with hints
   - `POST /api/math-problem/submit` - Evaluate answers with AI feedback
-  - `GET /api/high-scores` - Top 3 leaderboard data
+  - `GET /api/high-scores` - Top 3 leaderboard data with user names
   - `GET /api/problem-history` - User's attempt history
   - `POST /api/solution` - Step-by-step explanations (post-attempt only)
-- **Dashboard**: Modern landing page with time-based greetings, feature highlights, and medal-ranked leaderboard
+- **Dashboard**: Modern landing page with personalized greetings, feature highlights, and medal-ranked leaderboard
 - **Learning Features**: Difficulty levels, timer system, problem type selection, instant hints, solutions with access control, and confetti celebrations
 - **Mobile Optimization**: Fully responsive design with optimized navigation and UI components for all screen sizes
 
 ## 🚀 Future Enhancements
 
-- **User Authentication**: Individual user accounts with personalized progress tracking and learning analytics
-- **Advanced AI Features**: Multi-step problem explanations with visual aids and adaptive difficulty adjustment
-- **Gamification**: Achievement badges, streak counters, and competitive leaderboards with user profiles
-- **Curriculum Integration**: Alignment with specific educational standards and detailed progress reports for educators
-- **Accessibility**: Enhanced screen reader support and keyboard navigation for inclusive learning
+- [ ] **Advanced User Authentication**: Individual user accounts with password protection and session management
+- [ ] **Advanced AI Features**: Multi-step problem explanations with visual aids and adaptive difficulty adjustment
+- [ ] **Gamification**: Achievement badges, streak counters, and competitive leaderboards with user profiles
+- [ ] **Curriculum Integration**: Alignment with specific educational standards and detailed progress reports for educators
+- [ ] **Accessibility**: Enhanced screen reader support and keyboard navigation for inclusive learning
 

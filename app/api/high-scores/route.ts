@@ -13,10 +13,18 @@ export async function GET() {
       return NextResponse.json({ error: 'Database configuration error' }, { status: 500 })
     }
 
-    // Get high scores from submissions, grouped by session to avoid duplicates
+    // Get high scores from submissions with user names
     const { data: highScores, error } = await supabase
       .from('math_problem_submissions')
-      .select('total_score, difficulty_level, created_at, is_correct')
+      .select(`
+        total_score, 
+        difficulty_level, 
+        created_at, 
+        is_correct,
+        users (
+          name
+        )
+      `)
       .order('total_score', { ascending: false })
       .limit(50) // Get more records to process
 
@@ -39,7 +47,8 @@ export async function GET() {
         score: score.total_score,
         difficulty: score.difficulty_level,
         date: new Date(score.created_at).toLocaleDateString(),
-        isCorrect: score.is_correct
+        isCorrect: score.is_correct,
+        name: (score as any).users?.name || 'Anonymous'
       })) || []
 
     return NextResponse.json(processedScores)

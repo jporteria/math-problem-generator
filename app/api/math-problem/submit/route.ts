@@ -61,7 +61,7 @@ async function callAIForFeedback({ problem_text, correctAnswer, userAnswer, isCo
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { sessionId, userAnswer, difficulty, timeUsed, currentTotalScore } = body
+    const { sessionId, userAnswer, difficulty, timeUsed, currentTotalScore, userId } = body
 
     // Validate required parameters
     if (!sessionId || typeof userAnswer !== 'number') {
@@ -106,7 +106,8 @@ export async function POST(request: Request) {
     const { data: submission, error: insertError } = await supabase
       .from('math_problem_submissions')
       .insert([{ 
-        session_id: sessionId, 
+        session_id: sessionId,
+        user_id: userId || null,
         user_answer: userAnswer, 
         is_correct: isCorrect, 
         feedback_text: feedback,

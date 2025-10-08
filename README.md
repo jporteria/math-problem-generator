@@ -1,6 +1,6 @@
 # Math Problem Generator
 
-## ✅ **COMPLETED PROJECT**
+## ✅ COMPLETED PROJECT
 
 A fully functional AI-powered math problem generator application that creates word problems suitable for Primary 5 students, saves problems and user submissions to a database, and provides personalized feedback using Google's Gemini AI.
 

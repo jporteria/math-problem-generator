@@ -28,20 +28,25 @@ export default function HomePage() {
 
   // Fetch high scores
   useEffect(() => {
-  const fetchHighScores = async () => {
-    try {
-      const response = await fetch('/api/high-scores');
-      if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setHighScores(data.slice(0, 3)); // Only take top 3
+    const fetchHighScores = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/high-scores');
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setHighScores(data.slice(0, 3)); // Only take top 3
+          }
         }
+      } catch (error) {
+        console.error('Error fetching high scores:', error);
+        setHighScores([]); // Fallback to empty array
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching high scores:', error);
-      setHighScores([]); // Fallback to empty array
-    }
-  };    fetchHighScores();
+    };
+    
+    fetchHighScores();
   }, []);
   const features = [
     {

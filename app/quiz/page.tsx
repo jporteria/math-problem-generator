@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import confetti from "canvas-confetti";
 
 /**
  * Interface for math problem data structure
@@ -68,6 +69,37 @@ export default function QuizPage() {
   };
 
   /**
+   * Triggers a celebration confetti effect
+   */
+  const triggerConfetti = () => {
+    // Create a burst of confetti from the center
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+    
+    // Add a second burst with different colors and timing
+    setTimeout(() => {
+      confetti({
+        particleCount: 50,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.6 }
+      });
+    }, 250);
+    
+    setTimeout(() => {
+      confetti({
+        particleCount: 50,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.6 }
+      });
+    }, 400);
+  };
+
+  /**
    * Resets the score tracking to start over
    */
   const resetScore = () => {
@@ -126,6 +158,11 @@ export default function QuizPage() {
       // Update UI with feedback and result
       setFeedback(data.feedback || "No feedback");
       setIsCorrect(Boolean(data.isCorrect));
+      
+      // Trigger confetti if answer is correct
+      if (Boolean(data.isCorrect)) {
+        triggerConfetti();
+      }
       
       // Update score tracking with difficulty multiplier
       setTotalProblems(prev => prev + 1);

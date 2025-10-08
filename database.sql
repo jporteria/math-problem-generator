@@ -49,6 +49,14 @@ BEGIN
         ADD COLUMN time_used_seconds INTEGER DEFAULT 0;
     END IF;
     
+    -- Add total_score to submissions table if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'math_problem_submissions' 
+                   AND column_name = 'total_score') THEN
+        ALTER TABLE math_problem_submissions 
+        ADD COLUMN total_score NUMERIC DEFAULT 0;
+    END IF;
+    
     -- Add hint column to sessions table if it doesn't exist
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                    WHERE table_name = 'math_problem_sessions' 
